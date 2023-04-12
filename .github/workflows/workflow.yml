@@ -26,17 +26,14 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Set up JDK
-      uses: actions/setup-java@v2
-      with:
-        java-version: '8'
-
-    - name: Set up Maven
+    - name: Set up JDK and Maven
       uses: actions/setup-java@v2
       with:
         java-version: '8'
         distribution: 'maven'
-
+        # distribution: 'adopt'
+        # maven-version: '3.6.3'
+      
     - name: Build
       run: mvn -s settings.xml -DskipTests install
 
