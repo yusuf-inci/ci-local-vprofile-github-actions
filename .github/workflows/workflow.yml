@@ -1,0 +1,95 @@
+name: CI workflow
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  SNAP_REPO: 'vprofile-snapshot'
+  NEXUS_USER: 'admin'
+  NEXUS_PASS: 'admin'
+  RELEASE_REPO: 'vprofile-release'
+  CENTRAL_REPO: 'vpro-maven-central'
+  NEXUSIP: '192.168.56.21'
+  NEXUSPORT: '8081'
+  NEXUS_GRP_REPO: 'vpro-maven-group'
+  NEXUS_LOGIN: 'nexuslogin'
+  SONARSERVER: 'sonarserver'
+  SONARSCANNER: 'sonarscanner'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up JDK
+      uses: actions/setup-java@v2
+      with:
+        java-version: '8'
+
+    - name: Set up Maven
+      uses: actions/setup-java@v2
+      with:
+        java-version: '8'
+        distribution: 'maven'
+
+    - name: Build
+      run: mvn -s settings.xml -DskipTests install
+
+    # # If the build is successful, archive the WAR file
+    # - name: Archive Artifacts
+      # if: success()
+      # uses: actions/upload-artifact@v2
+      # with:
+        # name: war-file
+        # path: '**/*.war'
+
+    # - name: Test
+      # run: mvn -s settings.xml test
+
+    # - name: Checkstyle Analysis
+      # run: mvn -s settings.xml checkstyle:checkstyle
+
+    # - name: Sonar Analysis
+      # uses: sonarsource/sonarqube-scan-action@v1
+      # with:
+        # token: ${{ secrets.SONAR_TOKEN }}
+        # projectBaseDir: '.'
+        # projectName: 'vprofile'
+        # projectVersion: '1.0'
+        # sources: 'src/'
+        # # java.binaries: 'target/test-classes/com/visualpathit/account/controllerTest/'
+        # reportsPath: 'target/surefire-reports/,target/jacoco.exec'
+        # checkstyle.reportPaths: 'target/checkstyle-result.xml'
+
+    # - name: Quality Gate
+      # uses: sonarsource/quality-gate-action@v1
+      # with:
+        # projectKey: 'vprofile'
+
+    # - name: Upload Artifact
+      # uses: MavenPublish/maven-publish-action@v2
+      # with:
+        # pom: 'pom.xml'
+        # repository_url: 'http://example.com/repository/'
+        # repository_username: ${{ secrets.NEXUS_USER }}
+        # repository_password: ${{ secrets.NEXUS_PASS }}
+        # file: 'target/vprofile-v2.war'
+
+    # - name: Send Slack Notification
+      # if: always()
+      # uses: rtCamp/action-slack-notify@v2.2
+      # with:
+        # status: ${{ job.status }}
+        # # text: "Job ${{ github.job }} build ${{ github.run_number }} - ${{ job.status }}"
+        # author_name: ${{ github.actor }}
+        # # author_icon: 'https://avatars.githubusercontent.com/u/XXX?v=4' #// add your GitHub avatar URL here
+        # author_link: 'https://github.com/${{ github.actor }}'
+        # channel: '#jenkinscicdlocal'
+        # color: ${{ job.status == 'success' && 'good' || 'danger' }}
+        # footer: 'GitHub Actions'
+        # ts: ${{ github.run_id }}
